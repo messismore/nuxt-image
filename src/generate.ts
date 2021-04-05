@@ -9,6 +9,7 @@ import { joinURL, hasProtocol, parseURL } from 'ufo'
 import { ModuleOptions, MapToStatic, ResolvedImage } from './types'
 import { hash, logger } from './utils'
 
+const delayOffset = 300
 const pipeline = promisify(stream.pipeline)
 
 export function setupStaticGeneration (nuxt: any, options: ModuleOptions) {
@@ -27,22 +28,26 @@ export function setupStaticGeneration (nuxt: any, options: ModuleOptions) {
 
   nuxt.hook('generate:done', async () => {
     const { dir: generateDir } = nuxt.options.generate
+    let delay = 0
     const downloads = Object.entries(staticImages).map(([url, name]) => {
       if (!hasProtocol(url)) {
         url = joinURL(options.internalUrl, url)
       }
+      delay += delayOffset
       return downloadImage({
         url,
         name,
-        outDir: resolve(generateDir, '_nuxt/image' /* TODO: staticImagesBase */)
+        outDir: resolve(generateDir, '_nuxt/image' /* TODO: staticImagesBase */),
+        delay
       })
     })
     await Promise.all(downloads)
   })
 }
 
-async function downloadImage ({ url, name, outDir }) {
+async function downloadImage ({ url, name, outDir, delay }) {
   try {
+    await new Promise(resolve => setTimeout(resolve, delay))
     const response = await fetch(url)
     if (!response.ok) { throw new Error(`Unexpected response ${response.statusText}`) }
     const dstFile = join(outDir, name)
