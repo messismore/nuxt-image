@@ -9,7 +9,7 @@ import { joinURL, hasProtocol, parseURL } from 'ufo'
 import { ModuleOptions, MapToStatic, ResolvedImage } from './types'
 import { hash, logger } from './utils'
 
-const delayOffset = 300
+const delayOffset = 450
 const pipeline = promisify(stream.pipeline)
 
 export function setupStaticGeneration (nuxt: any, options: ModuleOptions) {
